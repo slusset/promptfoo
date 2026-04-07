@@ -1,150 +1,17 @@
 # yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
 
-description: "Phase 3 adversarial eval: classify noisy and mixed-signal engineering artifacts"
+description: "Compatibility entrypoint for the adversarial classify-failures suite"
 
 prompts:
-  - file://prompts/classify_failure.yaml
+  - file://evals/classify-failures/prompts/classify_failure.yaml
 
 providers:
-  - id: file://providers/local-llamacpp.js
+  - id: file://evals/classify-failures/providers/local-llamacpp.js
     label: local-llamacpp
     config:
-      base_url: http://localhost:8080
+      base_url: http://mbp:8080
       model: ggml-org/gemma-4-E4B-it-GGUF:Q8_0
       temperature: 0
       max_tokens: 8
 
-tests:
-  # test_failure adversarial/noisy
-  - vars:
-      artifact: |
-        [jest-worker] WARN retrying failed test file
-        FAIL tests/login.spec.ts > login journey > renders dashboard
-        AssertionError: expected "Sign in" to equal "Dashboard"
-        note: backend emitted 500 during fixture setup but failure is recorded by the test runner
-      expected_label: test_failure
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  - vars:
-      artifact: |
-        --- output truncated ---
-        ... 198 lines omitted ...
-        E       AssertionError: assert {'status': 500} == {'status': 201}
-        ... captured stderr ...
-        RuntimeError: server crashed during request
-      expected_label: test_failure
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  - vars:
-      artifact: |
-        2026-04-04T22:51:11Z INFO playwright retry #2
-        ✘  should export csv @ smoke/export.spec.ts:14
-        Timeout 15000ms exceeded while waiting for locator('[data-testid="export-ready"]')
-      expected_label: test_failure
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  # build_failure adversarial/noisy
-  - vars:
-      artifact: |
-        [lint] 32 warnings, 0 errors
-        [typecheck] src/auth.ts(88,17): error TS2339: Property 'roles' does not exist on type 'User | null'.
-        build aborted after 1 type error
-      expected_label: build_failure
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  - vars:
-      artifact: |
-        CI job: frontend-build
-        step 7/9: pnpm build
-        RollupError: Could not resolve "../shared/formatMoney" from "src/pages/Billing.tsx"
-        hint: if this is intended to be external, add it to rollupOptions.external
-      expected_label: build_failure
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  - vars:
-      artifact: |
-        ERROR: package install completed
-        ERROR: compile command failed
-        src/lib.rs:41:9: error[E0308]: mismatched types
-        expected `String`, found `&str`
-      expected_label: build_failure
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  # config_error adversarial/noisy
-  - vars:
-      artifact: |
-        startup diagnostics:
-        - redis reachable: yes
-        - db reachable: yes
-        - env check: failed
-        FATAL ConfigError: APP_ENV="productionn" is not one of development, test, production
-      expected_label: config_error
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  - vars:
-      artifact: |
-        [helm] upgrade failed: values don't meet the specifications of the schema(s) in the following chart(s):
-        my-api:
-        - image.tag: Invalid type. Expected: string, given: null
-      expected_label: config_error
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  - vars:
-      artifact: |
-        warning: using default locale en_US
-        warning: using default timezone UTC
-        fatal: could not load credentials from /etc/app/secrets.json: invalid character '}' looking for beginning of object key string
-      expected_label: config_error
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  # runtime_error adversarial/noisy
-  - vars:
-      artifact: |
-        INFO request_id=7ac1 path=/api/report started
-        WARN cache miss key=report:monthly
-        ERROR request_id=7ac1 path=/api/report finished 500 in 182ms
-        TypeError: Cannot convert undefined or null to object
-            at Function.keys (<anonymous>)
-      expected_label: runtime_error
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  - vars:
-      artifact: |
-        worker=thumbnailer attempt=3/5
-        ffmpeg exited with code 1
-        panic: open /tmp/source.mov: no such file or directory
-      expected_label: runtime_error
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  - vars:
-      artifact: |
-        ... log tail ...
-        sqlalchemy.exc.IntegrityError: (psycopg2.errors.ForeignKeyViolation) insert or update on table "invoice_items" violates foreign key constraint
-        CONTEXT: SQL statement "INSERT INTO invoice_items ..."
-        during POST /invoices
-      expected_label: runtime_error
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
+tests: file://evals/classify-failures/tests/adversarial.yaml

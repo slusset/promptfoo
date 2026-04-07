@@ -1,0 +1,3 @@
+# Add frozen cases here that you do not tune prompts against.
+# Use this suite as a periodic reality check after prompt or rubric changes.
+[]

@@ -1,138 +1,17 @@
 # yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
 
-description: "Phase 2 edge-case eval: classify ambiguous engineering artifacts"
+description: "Compatibility entrypoint for the edge classify-failures suite"
 
 prompts:
-  - file://prompts/classify_failure.yaml
+  - file://evals/classify-failures/prompts/classify_failure.yaml
 
 providers:
-  - id: file://providers/local-llamacpp.js
+  - id: file://evals/classify-failures/providers/local-llamacpp.js
     label: local-llamacpp
     config:
-      base_url: http://localhost:8080
+      base_url: http://mbp:8080
       model: ggml-org/gemma-4-E4B-it-GGUF:Q8_0
       temperature: 0
       max_tokens: 8
 
-tests:
-  # test_failure edge cases
-  - vars:
-      artifact: |
-        FAIL src/session.test.ts
-          session bootstrap
-
-          beforeAll hook for "returns active session"
-          Error: Missing required environment variable SESSION_SECRET
-            at loadTestEnv (test/helpers/env.ts:9:9)
-      expected_label: test_failure
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  - vars:
-      artifact: |
-        CypressError: Timed out retrying after 10000ms: Expected to find content: 'Welcome back' but never did.
-
-        Because this error occurred during a `before each` hook we are skipping the remaining tests in the current suite: `login flow`
-      expected_label: test_failure
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  - vars:
-      artifact: |
-        --- FAIL: TestCheckout_DeclinesExpiredCard (0.00s)
-        panic: runtime error: index out of range [1] with length 1
-            at checkout_test.go:44
-      expected_label: test_failure
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  # build_failure edge cases
-  - vars:
-      artifact: |
-        vite v5.4.2 building for production...
-        ✘ [ERROR] Could not resolve "./Button" imported by src/App.tsx
-      expected_label: build_failure
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  - vars:
-      artifact: |
-        src/components/Card.tsx
-          18:7  error  Parsing error: Unexpected token
-
-        ✖ 1 problem (1 error, 0 warnings)
-      expected_label: build_failure
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  - vars:
-      artifact: |
-        Docker build failed at STEP 8/12: RUN npm run build
-
-        error TS2584: Cannot find name 'document'. Do you need to change your target library?
-      expected_label: build_failure
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  # config_error edge cases
-  - vars:
-      artifact: |
-        Prisma schema validation - Environment variable not found: DATABASE_URL.
-          -->  schema.prisma:10
-      expected_label: config_error
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  - vars:
-      artifact: |
-        Application startup failed: config file /etc/myapp/config.json is missing required property "region"
-      expected_label: config_error
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  - vars:
-      artifact: |
-        fatal: invalid log level "verbosee"; expected one of trace debug info warn error
-      expected_label: config_error
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  # runtime_error edge cases
-  - vars:
-      artifact: |
-        2026-04-04T22:40:11Z ERROR GET /reports/42 500
-        ReferenceError: window is not defined
-            at renderChart (/srv/web/ssr.js:88:5)
-      expected_label: runtime_error
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  - vars:
-      artifact: |
-        ActiveJob::DeserializationError: Error while trying to deserialize arguments: Couldn't find User with 'id'=9182
-            from /app/jobs/send_receipt_job.rb:12:in `perform`
-      expected_label: runtime_error
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
-
-  - vars:
-      artifact: |
-        psycopg2.OperationalError: server closed the connection unexpectedly
-            This probably means the server terminated abnormally
-            before or while processing the request.
-            at POST /orders
-      expected_label: runtime_error
-    assert:
-      - type: equals
-        value: '{{expected_label}}'
+tests: file://evals/classify-failures/tests/edge.yaml

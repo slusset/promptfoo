@@ -7,9 +7,9 @@ if [ "$#" -lt 1 ]; then
 fi
 
 configs=(
-  "promptfooconfig.yaml"
-  "promptfooconfig.edge.yaml"
-  "promptfooconfig.adversarial.yaml"
+  "evals/classify-failures/suites/baseline.yaml"
+  "evals/classify-failures/suites/edge.yaml"
+  "evals/classify-failures/suites/adversarial.yaml"
 )
 
 for model in "$@"; do

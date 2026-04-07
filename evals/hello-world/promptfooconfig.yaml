@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
 
-description: "Compatibility entrypoint for the hello-world example"
+description: "Hello world eval"
 
 # The prompt template — {{name}} gets filled in by each test case
 prompts:
@@ -8,7 +8,7 @@ prompts:
 
 # Which model to use
 providers:
-  - id: file://evals/classify-failures/providers/local-llamacpp.js
+  - id: file://../classify-failures/providers/local-llamacpp.js
     label: local-llamacpp
     config:
       base_url: http://mbp:8080

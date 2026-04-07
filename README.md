@@ -31,12 +31,13 @@ That lets you answer:
 
 ## Layout
 
-- `promptfooconfig.yaml` - baseline suite
-- `promptfooconfig.edge.yaml` - edge-case suite
-- `promptfooconfig.adversarial.yaml` - noisy/adversarial suite
-- `prompts/classify_failure.yaml` - task prompt and decision rules
-- `providers/local-llamacpp.js` - promptfoo provider shim for local llama.cpp/OpenAI-compatible chat completions
-- `MODEL_COMPARISON_LOG.md` - reusable run log for side-by-side model comparison
+- `evals/classify-failures/suites/` - runnable Promptfoo suite entrypoints
+- `evals/classify-failures/tests/` - suite-specific case lists
+- `evals/classify-failures/prompts/classify_failure.yaml` - task prompt and decision rules
+- `evals/classify-failures/providers/local-llamacpp.js` - promptfoo provider shim for local llama.cpp/OpenAI-compatible chat completions
+- `evals/classify-failures/README.md` - task-local workflow notes
+- `evals/hello-world/promptfooconfig.yaml` - minimal example project
+- `promptfooconfig*.yaml` - root compatibility entrypoints
 - `scripts/compare_local_models.sh` - compact multi-model comparison runner
 - `Justfile` - convenience commands
 
@@ -66,7 +67,19 @@ Run the adversarial/noisy suite:
 just eval-adversarial
 ```
 
-Run both:
+Run the regression suite:
+
+```bash
+just eval-regression
+```
+
+Run the holdout suite:
+
+```bash
+just eval-holdout
+```
+
+Run the core comparison suites:
 
 ```bash
 just eval-all
@@ -78,18 +91,14 @@ View recent promptfoo results:
 just view
 ```
 
-View the comparison log template:
-
-```bash
-just compare-log
-```
-
 Run one suite against a specific model id:
 
 ```bash
 just eval-model 'your-model-id'
 just eval-edge-model 'your-model-id'
 just eval-adversarial-model 'your-model-id'
+just eval-regression-model 'your-model-id'
+just eval-holdout-model 'your-model-id'
 ```
 
 Run all three suites for multiple model ids:
@@ -102,7 +111,7 @@ just compare-models 'model-a' 'model-b'
 
 ### 1. Baseline suite
 
-Use `promptfooconfig.yaml` for obvious, representative cases.
+Use `evals/classify-failures/suites/baseline.yaml` for obvious, representative cases.
 
 Purpose:
 
@@ -112,7 +121,7 @@ Purpose:
 
 ### 2. Edge suite
 
-Use `promptfooconfig.edge.yaml` for boundary cases.
+Use `evals/classify-failures/suites/edge.yaml` for boundary cases.
 
 Purpose:
 
@@ -129,13 +138,43 @@ Examples:
 
 ### 3. Adversarial suite
 
-Use `promptfooconfig.adversarial.yaml` for noisy, truncated, and mixed-signal artifacts.
+Use `evals/classify-failures/suites/adversarial.yaml` for noisy, truncated, and mixed-signal artifacts.
 
 Purpose:
 
 - test robustness against realistic messy logs
 - reduce keyword overfitting
 - verify the model still chooses the right label when multiple signals appear together
+
+### 4. Regression suite
+
+Use `evals/classify-failures/suites/regression.yaml` for confirmed misses from real evaluation runs.
+
+Purpose:
+
+- convert model mistakes into locked regression coverage
+- keep the most important failures small and visible
+- make prompt or rubric edits earn their keep
+
+### 5. Holdout suite
+
+Use `evals/classify-failures/suites/holdout.yaml` for frozen cases that you do not tune against.
+
+Purpose:
+
+- detect overfitting to baseline, edge, and regression cases
+- preserve a cleaner signal for periodic quality checks
+- keep at least one suite honest
+
+## Organization best practices
+
+- Create one eval project per use case under `evals/`.
+- Keep `suites/` as thin entrypoints and `tests/` as the source-of-truth case lists.
+- Reuse providers across projects instead of copying provider logic into each suite.
+- Add confirmed misses to `regression.yaml` first, then decide later whether they belong in a broader suite.
+- Keep `holdout.yaml` frozen once it starts carrying meaningful signal.
+- Compare one axis at a time: prompt, provider, or test set composition.
+- Preserve root compatibility configs only as convenience entrypoints, not as the canonical home of the eval.
 
 ## Recommended eval methodology
 

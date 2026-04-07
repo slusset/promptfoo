@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+
+description: "Baseline suite: classify representative engineering artifacts"
+
+prompts:
+  - file://../prompts/classify_failure.yaml
+
+providers:
+  - id: file://../providers/local-llamacpp.js
+    label: local-llamacpp
+    config:
+      base_url: http://mbp:8080
+      model: ggml-org/gemma-4-E4B-it-GGUF:Q8_0
+      temperature: 0
+      max_tokens: 8
+
+tests: file://../tests/baseline.yaml
