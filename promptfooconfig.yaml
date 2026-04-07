@@ -1,0 +1,275 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+
+description: "Phase 1 code reasoning eval: classify engineering artifacts"
+
+prompts:
+  - file://prompts/classify_failure.yaml
+
+providers:
+  - id: file://providers/local-llamacpp.js
+    label: local-llamacpp
+    config:
+      base_url: http://localhost:8080
+      model: ggml-org/gemma-4-E4B-it-GGUF:Q8_0
+      temperature: 0
+      max_tokens: 8
+
+tests:
+  # test_failure
+  - vars:
+      artifact: |
+        FAIL src/math.test.ts
+          sum > adds two numbers
+
+          TypeError: sum is not a function
+            at Object.<anonymous> (src/math.test.ts:7:12)
+      expected_label: test_failure
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  - vars:
+      artifact: |
+        ● auth middleware › rejects expired JWT
+
+          expect(received).toBe(expected) // Object.is equality
+
+          Expected: 401
+          Received: 200
+
+            22 |   const res = await request(app).get('/session');
+            23 |
+          > 24 |   expect(res.status).toBe(401);
+               |                      ^
+      expected_label: test_failure
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  - vars:
+      artifact: |
+        __________________ test_create_user_returns_201 __________________
+
+        client = <FlaskClient <Flask 'app'>>
+
+            def test_create_user_returns_201(client):
+                response = client.post('/users', json={'email': 'a@example.com'})
+        >       assert response.status_code == 201
+        E       assert 500 == 201
+      expected_label: test_failure
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  - vars:
+      artifact: |
+        1) Payments API should return a declined response for an expired card
+           Error: Timeout of 2000ms exceeded. For async tests and hooks, ensure "done()" is called.
+            at listOnTimeout (node:internal/timers:569:17)
+            at process.processTimers (node:internal/timers:512:7)
+      expected_label: test_failure
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  - vars:
+      artifact: |
+        Snapshot name: `ProfileCard renders empty state 1`
+
+        - Snapshot  - 1
+        + Received  + 1
+
+        - <span>No profile image</span>
+        + <span>No avatar</span>
+      expected_label: test_failure
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  - vars:
+      artifact: |
+        [ERROR] Failures:
+        [ERROR]   InvoiceServiceTest.shouldRoundTax:48 expected: <12.35> but was: <12.34>
+        [ERROR] Tests run: 128, Failures: 1, Errors: 0, Skipped: 0
+      expected_label: test_failure
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  # build_failure
+  - vars:
+      artifact: |
+        src/services/userService.ts:3:24 - error TS2307: Cannot find module './db/client' or its corresponding type declarations.
+
+        3 import { client } from './db/client';
+                                 ~~~~~~~~~~~~~
+      expected_label: build_failure
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  - vars:
+      artifact: |
+        src/api.ts:14:7 - error TS2322: Type 'string' is not assignable to type 'number'.
+
+        14 const retryCount: number = process.env.RETRY_COUNT;
+                 ~~~~~~~~~~
+      expected_label: build_failure
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  - vars:
+      artifact: |
+        ERROR in ./src/index.jsx 18:4
+        Module parse failed: Unexpected token (18:4)
+        You may need an appropriate loader to handle this file type.
+      expected_label: build_failure
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  - vars:
+      artifact: |
+        ./cmd/server/main.go:27:15: undefined: NewRouter
+      expected_label: build_failure
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  - vars:
+      artifact: |
+        src/main/java/com/acme/BillingService.java:42: error: ';' expected
+                return invoice.total()
+                                      ^
+      expected_label: build_failure
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  - vars:
+      artifact: |
+        error[E0432]: unresolved import `crate::config::load_secrets`
+         --> src/main.rs:5:5
+          |
+        5 | use crate::config::load_secrets;
+          |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `load_secrets` in `config`
+      expected_label: build_failure
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  # config_error
+  - vars:
+      artifact: |
+        Error: Missing required environment variable DATABASE_URL
+            at loadConfig (src/config.ts:14:11)
+            at startServer (src/server.ts:8:3)
+      expected_label: config_error
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  - vars:
+      artifact: |
+        ConfigError: Invalid value for PORT: "eighty". Expected an integer between 1 and 65535.
+            at parseServerConfig (/app/config/server.ts:19:9)
+      expected_label: config_error
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  - vars:
+      artifact: |
+        Failed to load configuration file config/app.yaml
+        yaml: line 12: did not find expected key
+      expected_label: config_error
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  - vars:
+      artifact: |
+        Startup aborted: no OAuth client secret configured for provider google
+      expected_label: config_error
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  - vars:
+      artifact: |
+        Error: Feature flag PAYMENTS_V2 has invalid value "maybe"; expected true or false
+            at validateFlags (/srv/app/config/flags.js:31:13)
+      expected_label: config_error
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  - vars:
+      artifact: |
+        ConfigurationException: redis.host must be provided when cache.enabled=true
+      expected_label: config_error
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  # runtime_error
+  - vars:
+      artifact: |
+        UnhandledPromiseRejectionWarning: TypeError: Cannot read properties of undefined (reading 'id')
+            at renderUser (/app/src/render.js:18:9)
+            at processRequest (/app/src/server.js:42:5)
+      expected_label: runtime_error
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  - vars:
+      artifact: |
+        Traceback (most recent call last):
+          File "/srv/app/worker.py", line 88, in handle_job
+            total = subtotal / item_count
+        ZeroDivisionError: division by zero
+      expected_label: runtime_error
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  - vars:
+      artifact: |
+        panic: runtime error: invalid memory address or nil pointer dereference
+        goroutine 18 [running]:
+        main.(*Server).ServeHTTP(0x0?, {0x1046d8?, 0xc00031a000?}, 0xc00028c000?)
+      expected_label: runtime_error
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  - vars:
+      artifact: |
+        java.lang.NullPointerException: Cannot invoke "User.getId()" because "user" is null
+            at com.acme.profile.ProfileController.show(ProfileController.java:63)
+      expected_label: runtime_error
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  - vars:
+      artifact: |
+        KeyError: 'customer_id'
+          at build_invoice (/opt/service/invoice.py:54)
+          at handle_request (/opt/service/http.py:19)
+      expected_label: runtime_error
+    assert:
+      - type: equals
+        value: '{{expected_label}}'
+
+  - vars:
+      artifact: |
+        2026-04-04T22:11:03.120Z ERROR request_id=4c9d32 POST /checkout 500
+        SequelizeUniqueConstraintError: Validation error
+            at Query.formatError (/app/node_modules/sequelize/lib/dialects/postgres/query.js:312:16)
+      expected_label: runtime_error
+    assert:
+      - type: equals
+        value: '{{expected_label}}'

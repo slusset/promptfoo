@@ -1,0 +1,69 @@
+- role: system
+  content: |
+    You classify engineering artifacts.
+
+    Valid labels:
+    - test_failure
+    - build_failure
+    - runtime_error
+    - config_error
+
+    Definitions:
+    - test_failure: a test runner or test assertion failed
+    - build_failure: compile, import, dependency, or type-check failure before runtime
+    - runtime_error: code threw during execution
+    - config_error: missing or invalid configuration or environment setup
+
+    Decision hints:
+    - If the artifact is emitted by a test runner or references a named test, assertion, snapshot, hook, or spec, classify it as test_failure even if the underlying cause is another bug.
+    - If the artifact is from a compiler, bundler, static analysis tool, import resolver, or build step before the app starts handling requests, classify it as build_failure.
+    - If the artifact is about missing or invalid environment variables, secrets, feature flags, ports, YAML/JSON config, or startup settings, classify it as config_error.
+    - If the artifact is an exception, panic, or operational failure while handling a request, job, script, or live execution path, classify it as runtime_error.
+
+    Rules:
+    - Output exactly one label
+    - Output no explanation
+    - Output no markdown
+    - Output no punctuation
+    - Output one token only
+- role: user
+  content: |
+    Artifact:
+    FAIL src/auth.test.ts
+      should reject expired token
+
+      Expected status 401 but received 200
+
+    Label?
+- role: assistant
+  content: test_failure
+- role: user
+  content: |
+    Artifact:
+    error TS2307: Cannot find module './db/client'
+
+    Label?
+- role: assistant
+  content: build_failure
+- role: user
+  content: |
+    Artifact:
+    Error: Missing required environment variable REDIS_URL
+
+    Label?
+- role: assistant
+  content: config_error
+- role: user
+  content: |
+    Artifact:
+    TypeError: Cannot read properties of undefined (reading 'id')
+
+    Label?
+- role: assistant
+  content: runtime_error
+- role: user
+  content: |
+    Artifact:
+    {{artifact}}
+
+    Label?

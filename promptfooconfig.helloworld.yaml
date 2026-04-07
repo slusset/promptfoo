@@ -1,0 +1,31 @@
+description: "Hello world eval"
+
+# The prompt template — {{name}} gets filled in by each test case
+prompts:
+  - "Say hello to {{name}} in exactly one sentence."
+
+# Which model to use
+providers:
+  - id: file://providers/local-llamacpp.js
+    label: local-llamacpp
+    config:
+      base_url: http://localhost:8080
+      model: ggml-org/gemma-4-E4B-it-GGUF:Q8_0
+      temperature: 0
+      max_tokens: 8
+      
+# Test cases
+tests:
+  - vars:
+      name: Alice
+    assert:
+      - type: contains
+        value: Alice          # output must contain "Alice"
+      - type: llm-rubric
+        value: Is friendly    # LLM judges if the response is friendly
+
+  - vars:
+      name: Bob
+    assert:
+      - type: contains
+        value: Bob
