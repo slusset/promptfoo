@@ -11,7 +11,9 @@ providers:
   - id: file://evals/classify-failures/providers/local-llamacpp.js
     label: local-llamacpp
     config:
-      base_url: http://mbp:8080
+      base_url_env: LOCAL_LLAMACPP_BASE_URL
+      base_url: http://localhost:8080
+      model_env: LOCAL_LLAMACPP_MODEL
       model: ggml-org/gemma-4-E4B-it-GGUF:Q8_0
       temperature: 0
       max_tokens: 8

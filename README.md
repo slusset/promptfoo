@@ -13,6 +13,8 @@ Current task:
 
 The current provider is wired to a local llama.cpp-compatible endpoint, which makes it easy to compare models running on a local machine such as an MBP M4 Max.
 
+Provider connectivity is environment-driven. The checked-in configs default to `http://localhost:8080`, and `LOCAL_LLAMACPP_BASE_URL` / `LOCAL_LLAMACPP_MODEL` can override that per laptop.
+
 ## Why this repo exists
 
 This is not a generic benchmark. It is a custom eval suite tailored to a specific use case:
@@ -42,6 +44,19 @@ That lets you answer:
 - `Justfile` - convenience commands
 
 ## Quick start
+
+Create a local `.env` file for the laptop you are on:
+
+```bash
+cp .env.example .env
+```
+
+Adjust the endpoint if this machine should call a remote host instead of its own local server:
+
+```bash
+LOCAL_LLAMACPP_BASE_URL=http://localhost:8080
+LOCAL_LLAMACPP_MODEL=ggml-org/gemma-4-E4B-it-GGUF:Q8_0
+```
 
 Check the local model endpoint:
 
